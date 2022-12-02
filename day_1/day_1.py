@@ -73,7 +73,7 @@ def main():
     # The highest amount of calories a single elf is carrying.
     part_1: int = sorted_cals[0]
     # The total number of calories the top 3 elves are carrying.
-    part_2: int = sum(sorted_calcs[0:3])
+    part_2: int = sum(sorted_cals[0:3])
 
     # Display the results to the user
     print("Part 1:", part_1)
