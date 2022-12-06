@@ -6,3 +6,4 @@ My Stab at the Advent of Code Challenges
 - [Day 3](https://github.com/MattLimb/AdventOfCode/tree/2022/day_3)
 - [Day 4](https://github.com/MattLimb/AdventOfCode/tree/2022/day_4)
 - [Day 5](https://github.com/MattLimb/AdventOfCode/tree/2022/day_5)
+- [Day 6](https://github.com/MattLimb/AdventOfCode/tree/2022/day_6)
