@@ -1,9 +1,21 @@
 """Advent of Code - Day 1."""
+import re
 from pathlib import Path
 
 
 INPUT_FILENAME: Path = Path("./input.txt")
 
+NUMBERS_AS_TEXT: dict[str, str] = {
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
+    "six": "6",
+    "seven": "7",
+    "eight": "8",
+    "nine": "9",
+}
 
 def read_input(filename: Path) -> list[str]:
     """Read the input to the days challenge.
@@ -15,70 +27,59 @@ def read_input(filename: Path) -> list[str]:
     :rtype: list[str]
     """
     with filename.open("r", encoding="utf-8") as _file_handler:
-        return _file_handler.readlines()
+        return [ line.strip() for line in _file_handler.readlines() if len(line) != 0]
 
 
-def group_input(input: list[str]) -> list[list[int]]:
-    """Process the raw list into a list of lists representing the calories each elf is carrying.
+def part_1(puzzle_input_list: list[str]) -> list[int]:
+    """For each line in the puzzle input, discover the first and last digit.
 
-    :arg input: The raw input read in from the input file.
-    :type input: list[str]
+    :arg puzzle_input_list: The input provided by AdventOfCode as a list of stings.
+    :type puzzle_input_list: list[str]
 
-    :returns: A list of lists. Each sublist contains the calorie values for a single elf as integers.
-    :rtype: list[list[int]]
-    """
-    all_lists: list[list[int]] = []
-    current_elf: list[int] = []
-
-    for cal in input:
-        if cal == "\n":
-            # Append the current elf to all lists.
-            all_lists.append(current_elf)
-            # Make current elf empty again.
-            current_elf = []
-
-        else:
-            # Strip of the newline.
-            cal = cal.strip()
-            # Convert to int and add to current_elf list.
-            current_elf.append(int(cal))
-
-    return all_lists
-
-
-def find_most_cals(grouped_input: list[list[int]]) -> list[int]:
-    """Find the elf carrying the most calories.
-
-    :arg grouped_input: The list of lists representing the calorie values for each elf.
-    :type grouped_input: list[list[int]]
-
-    :returns: A list of integers. Each integer representing the total number of calories a single elf is carrying.
+    :returns: A list of integers containing the first and last digit on each line.
     :rtype: list[int]
     """
-    sum_cals: list[int] = [sum(inp) for inp in grouped_input]
+    output: list[int] = []
 
-    return sorted(sum_cals, reverse=True)
+    for line in puzzle_input_list:
+        numbers_in_string = [ character for character in line if character.isdigit() ]
+
+        first_number = numbers_in_string[0]
+        last_number = numbers_in_string[-1]
+
+        output.append(int(f"{first_number}{last_number}"))
+
+    return output
 
 
-def main():
-    """The main program function."""
-    raw_input: list[str] = read_input(INPUT_FILENAME)
+def part_2(puzzle_input_list: list[str]) -> list[int]:
+    """For each line in the puzzle input, discover the first and last digit.
 
-    # Group raw input into what each elf is carrying.
-    grouped_input: list[list[int]] = group_input(raw_input)
+    :arg puzzle_input_list: The input provided by AdventOfCode as a list of stings.
+    :type puzzle_input_list: list[str]
 
-    # Sum up the calories of each elf and sort them from most to least.
-    sorted_cals: list[int] = find_most_cals(grouped_input)
+    :returns: A list of integers containing the first and last digit on each line.
+    :rtype: list[int]
+    """
+    output: list[int] = []
+    regex = re.compile(rf"(?=([1-9]|{'|'.join(NUMBERS_AS_TEXT.keys())}))")
 
-    # The highest amount of calories a single elf is carrying.
-    part_1: int = sorted_cals[0]
-    # The total number of calories the top 3 elves are carrying.
-    part_2: int = sum(sorted_cals[0:3])
+    for line in puzzle_input_list:
+        numbers_in_string: list[str] = regex.findall(line)
 
-    # Display the results to the user
-    print("Part 1:", part_1)
-    print("Part 2:", part_2)
+        first_number: str = NUMBERS_AS_TEXT.get(numbers_in_string[0], numbers_in_string[0])
+        last_number: str = NUMBERS_AS_TEXT.get(numbers_in_string[-1], numbers_in_string[-1])
+
+        number: int = int(f"{first_number}{last_number}")
+
+        output.append(number)
+
+    return output
+
 
 
 if __name__ == "__main__":
-    main()
+    puzzle_input: list[str] = read_input(INPUT_FILENAME)
+
+    print("Part 1:", sum(part_1(puzzle_input)))
+    print("Part 2:", sum(part_2(puzzle_input)))
