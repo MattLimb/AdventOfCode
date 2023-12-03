@@ -99,7 +99,7 @@ def part_2(puzzle_input_dict: dict[int, list[CubeAmounts]]) -> list[int]:
     """
     output: list[int] = []
 
-    for game_id, games in puzzle_input_dict.items():
+    for _, games in puzzle_input_dict.items():
         red = green = blue = 0
 
         for game in games:
