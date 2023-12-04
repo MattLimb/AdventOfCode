@@ -1,11 +1,11 @@
-"""Advent of Code - Day 2."""
+"""Advent of Code - Day 3."""
 from collections import namedtuple
 from pathlib import Path
 from string import digits
 from string import punctuation
 
 INPUT_FILENAME: Path = Path("./input.txt")
-CoOrdinate = namedtuple("CoOrdinate", ["x", "y"])
+CoOrdinate = namedtuple("CoOrdinate", ["y", "x"])
 
 def read_input(filename: Path) -> list[str]:
     """Read the input to the days challenge.
@@ -32,32 +32,32 @@ def discover_number(input_grid: list[str], coord: CoOrdinate) -> int:
     :returns: The discovered number
     :rtype: int
     """
-    if input_grid[coord.x][coord.y] not in digits:
-        raise ValueError(f"Starting Position ({coord.x}, {coord.y}) is not a valid number.")
+    if input_grid[coord.y][coord.x] not in digits:
+        raise ValueError(f"Starting Position ({coord.y}, {coord.x}) is not a valid number.")
 
-    output_string: str = input_grid[coord.x][coord.y]
+    output_string: str = input_grid[coord.y][coord.x]
 
     # Move Left
-    new_y = coord.y - 1
-    while new_y != -1:
-        val = input_grid[coord.x][new_y]
+    new_x = coord.x - 1
+    while new_x != -1:
+        val = input_grid[coord.y][new_x]
 
         if val not in digits:
             break
 
         output_string = f"{val}{output_string}"
-        new_y -= 1
+        new_x -= 1
 
     # Move Right
-    new_y = coord.y + 1
-    while new_y != (len(input_grid[coord.x])):
-        val = input_grid[coord.x][new_y]
+    new_x = coord.x + 1
+    while new_x != (len(input_grid[coord.y])):
+        val = input_grid[coord.y][new_x]
 
         if val not in digits:
             break
 
         output_string = f"{output_string}{val}"
-        new_y += 1
+        new_x += 1
 
     return int(output_string)
 
@@ -77,33 +77,33 @@ def coord_around(coord: CoOrdinate, max_coord: CoOrdinate) -> list[CoOrdinate]:
     output: list[CoOrdinate] = []
 
     # Row Above
-    if coord.x != 0:
-        if coord.y != 0:
-            output.append(CoOrdinate(coord.x-1, coord.y-1))
+    if coord.y != 0:
+        if coord.x != 0:
+            output.append(CoOrdinate(y=coord.y-1, x=coord.x-1))
 
-        output.append(CoOrdinate(coord.x-1, coord.y))
+        output.append(CoOrdinate(y=coord.y-1, x=coord.x))
 
-        if coord.y != max_coord.y:
-            output.append(CoOrdinate(coord.x-1, coord.y+1))
+        if coord.x != max_coord.x:
+            output.append(CoOrdinate(y=coord.y-1, x=coord.x+1))
 
     # Current Row
-    if coord.y != 0:
-        output.append(CoOrdinate(coord.x, coord.y-1))
+    if coord.x != 0:
+        output.append(CoOrdinate(y=coord.y, x=coord.x-1))
 
-    output.append(CoOrdinate(coord.x, coord.y))
+    output.append(CoOrdinate(y=coord.y, x=coord.x))
 
-    if coord.y != max_coord.y:
-        output.append(CoOrdinate(coord.x, coord.y+1))
+    if coord.x != max_coord.x:
+        output.append(CoOrdinate(y=coord.y, x=coord.x+1))
 
     # Row Below
-    if coord.x != max_coord.x:
-        if coord.y != 0:
-            output.append(CoOrdinate(coord.x+1, coord.y-1))
+    if coord.y != max_coord.y:
+        if coord.x != 0:
+            output.append(CoOrdinate(y=coord.y+1, x=coord.x-1))
 
-        output.append(CoOrdinate(coord.x+1, coord.y))
+        output.append(CoOrdinate(y=coord.y+1, x=coord.x))
 
-        if coord.y != max_coord.y:
-            output.append(CoOrdinate(coord.x+1, coord.y+1))
+        if coord.x != max_coord.x:
+            output.append(CoOrdinate(y=coord.y+1, x=coord.x+1))
 
     return output
 
@@ -116,24 +116,25 @@ def part_1(input_grid: list[str]) -> list[int]:
     :returns: All part numbers in the grid.
     :rtype: list[int]
     """
-    max_coord = CoOrdinate(len(input_grid)-1, len(input_grid[0])-1)
+    max_coord = CoOrdinate(y=len(input_grid)-1, x=len(input_grid[0])-1)
     part_numbers: list[int] = []
 
-    for x, row in enumerate(input_grid):
-        for y, col in enumerate(row):
+    for y, row in enumerate(input_grid):
+        for x, col in enumerate(row):
             if col in punctuation and col != ".":
-                coord = CoOrdinate(x, y)
+                coord = CoOrdinate(y=y, x=x)
                 all_around = coord_around(coord, max_coord=max_coord)
+
 
                 filter_out = set(map(
                     lambda o: discover_number(input_grid, o),
                     filter(
-                        lambda o: input_grid[o.x][o.y] in digits,
+                        lambda o: input_grid[o.y][o.x] in digits,
                         all_around
                     )
                 ))
-
                 part_numbers.extend(list(filter_out))
+            
 
     return part_numbers
 
@@ -146,19 +147,19 @@ def part_2(input_grid: list[str]) -> list[int]:
     :returns: All gear ratios in the grid.
     :rtype: list[int]
     """
-    max_coord = CoOrdinate(len(input_grid)-1, len(input_grid[0])-1)
+    max_coord = CoOrdinate(y=len(input_grid)-1, x=len(input_grid[0])-1)
     ratios: list[int] = []
 
-    for x, row in enumerate(input_grid):
-        for y, col in enumerate(row):
+    for y, row in enumerate(input_grid):
+        for x, col in enumerate(row):
             if col == "*":
-                coord = CoOrdinate(x, y)
+                coord = CoOrdinate(y=y, x=x)
                 all_around = coord_around(coord, max_coord=max_coord)
 
                 filter_out = list(set(map(
                     lambda o: discover_number(input_grid, o),
                     filter(
-                        lambda o: input_grid[o.x][o.y] in digits,
+                        lambda o: input_grid[o.y][o.x] in digits,
                         all_around
                     )
                 )))
@@ -173,6 +174,4 @@ if __name__ == "__main__":
     puzzle_input: list[str] = read_input(INPUT_FILENAME)
 
     print("Part 1:", sum(part_1(puzzle_input)))
-
     print("Part 2:", sum(part_2(puzzle_input)))
-    # print("\n".join(puzzle_input))
