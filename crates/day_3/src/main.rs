@@ -3,8 +3,8 @@ use std::process::exit;
 
 #[derive(Debug, Clone)]
 struct CoOrdinate {
-    x: usize,
-    y: usize
+    y: usize,
+    x: usize
 }
 
 #[derive(Debug, Clone)]
@@ -48,15 +48,15 @@ impl Grid {
     }
 
     fn get(&self, coordinate: &CoOrdinate) -> Result<char, String> {
-        if coordinate.x > self.num_rows {
-            return Err(format!("Row index {} is out of bounds. (Too High)", coordinate.x));
+        if coordinate.y > self.num_rows {
+            return Err(format!("Row index {} is out of bounds. (Too High)", coordinate.y));
         }
 
-        if coordinate.y > self.num_cols {
-            return Err(format!("Column index {} is out of bounds. (Too High)", coordinate.y));
+        if coordinate.x > self.num_cols {
+            return Err(format!("Column index {} is out of bounds. (Too High)", coordinate.x));
         }
     
-        Ok(self.grid[coordinate.x as usize][coordinate.y as usize])
+        Ok(self.grid[coordinate.y][coordinate.x])
     }
 
     fn is_number(c: &char) -> bool {
@@ -85,13 +85,13 @@ impl Grid {
             }
         }
 
-        let mut new_y = start.clone().y;
+        let mut new_x = start.clone().x;
 
-        if start.clone().y > 0 {
+        if start.clone().x > 0 {
             // Go Left
-            new_y -= 1;
+            new_x -= 1;
             loop {
-                let ch: char = match self.get(&CoOrdinate { x: start.clone().x, y: new_y }) {
+                let ch: char = match self.get(&CoOrdinate { y: start.clone().y, x: new_x }) {
                     Ok(c) => c,
                     Err(_) => continue,
                 };
@@ -103,22 +103,22 @@ impl Grid {
                     false => break,
                 }
 
-                if new_y == 0 {
+                if new_x == 0 {
                     break
                 } else {
-                    new_y -= 1;
+                    new_x -= 1;
                 }
             }
         }
 
-        new_y = start.clone().y;
+        new_x = start.clone().x;
 
-        if start.clone().y < self.num_cols {
+        if start.clone().x < self.num_cols {
             // Go Right
-            new_y += 1;
+            new_x += 1;
 
             loop {
-                let ch: char = match self.get(&CoOrdinate { x: start.clone().x, y: new_y }) {
+                let ch: char = match self.get(&CoOrdinate { y: start.clone().y, x: new_x }) {
                     Ok(c) => c,
                     Err(_) => continue,
                 };
@@ -130,10 +130,10 @@ impl Grid {
                     false => break,
                 }
 
-                if new_y == self.num_cols - 1 {
+                if new_x == self.num_cols - 1 {
                     break
                 } else {
-                    new_y += 1;
+                    new_x += 1;
                 }
             }
         }
@@ -148,45 +148,45 @@ impl Grid {
         let mut surrounds: Vec<CoOrdinate> = vec![];
 
         // Discover Top Row
-        if start.x != 0 {
+        if start.y != 0 {
             // Can go Left?
-            if start.y != 0 {
-                surrounds.push(CoOrdinate { x: start.x - 1, y: start.y - 1 });
+            if start.x != 0 {
+                surrounds.push(CoOrdinate { y: start.y - 1, x: start.x - 1 });
             }
 
-            surrounds.push(CoOrdinate { x: start.x - 1, y: start.y });
+            surrounds.push(CoOrdinate { y: start.y - 1, x: start.x });
 
             // Can go Right?
-            if start.y != self.num_cols {
-                surrounds.push(CoOrdinate { x: start.x - 1, y: start.y + 1 });
+            if start.x != self.num_cols {
+                surrounds.push(CoOrdinate { y: start.y - 1, x: start.x + 1 });
             }
         }
 
         // Discover Current Row
         // Can go Left?
-        if start.y != 0 {
-            surrounds.push(CoOrdinate { x: start.x, y: start.y - 1 });
+        if start.x != 0 {
+            surrounds.push(CoOrdinate { y: start.y, x: start.x - 1 });
         }
 
-        surrounds.push(CoOrdinate { x: start.x, y: start.y });
+        surrounds.push(CoOrdinate { y: start.y, x: start.x });
 
         // Can go Right?
-        if start.y != self.num_cols {
-            surrounds.push(CoOrdinate { x: start.x, y: start.y + 1 });
+        if start.x != self.num_cols {
+            surrounds.push(CoOrdinate { y: start.y, x: start.x + 1 });
         }
 
         // Discover Bottom Row
-        if start.x != self.num_rows {
+        if start.y != self.num_rows {
             // Can go Left?
-            if start.y != 0 {
-                surrounds.push(CoOrdinate { x: start.x + 1, y: start.y - 1 });
+            if start.x != 0 {
+                surrounds.push(CoOrdinate { y: start.y + 1, x: start.x - 1 });
             }
 
-            surrounds.push(CoOrdinate { x: start.x + 1, y: start.y });
+            surrounds.push(CoOrdinate { y: start.y + 1, x: start.x });
 
             // Can go Right?
-            if start.y != self.num_cols {
-                surrounds.push(CoOrdinate { x: start.x + 1, y: start.y + 1 });
+            if start.x != self.num_cols {
+                surrounds.push(CoOrdinate { y: start.y + 1, x: start.x + 1 });
             }
         }
 
@@ -218,10 +218,10 @@ impl Grid {
 fn part_1(grid: Grid) {
     let mut all_nums: Vec<u32> = vec![];
 
-    for (x_idx, row) in grid.clone().grid.into_iter().enumerate() {
-        for (y_idx, col) in row.into_iter().enumerate() {
+    for (y_idx, row) in grid.clone().grid.into_iter().enumerate() {
+        for (x_idx, col) in row.into_iter().enumerate() {
             if col.is_ascii_punctuation() && col != '.' {
-                all_nums.extend(grid.discover_surrounds(CoOrdinate { x: x_idx, y: y_idx }));
+                all_nums.extend(grid.discover_surrounds(CoOrdinate { y: y_idx, x: x_idx }));
             }
         }
     }
@@ -232,10 +232,10 @@ fn part_1(grid: Grid) {
 fn part_2(grid: Grid) {
     let mut all_nums: Vec<u32> = vec![];
 
-    for (x_idx, row) in grid.clone().grid.into_iter().enumerate() {
-        for (y_idx, col) in row.into_iter().enumerate() {
+    for (y_idx, row) in grid.clone().grid.into_iter().enumerate() {
+        for (x_idx, col) in row.into_iter().enumerate() {
             if col.is_ascii_punctuation() && col != '.' {
-                let nums_around = grid.discover_surrounds(CoOrdinate { x: x_idx, y: y_idx });
+                let nums_around = grid.discover_surrounds(CoOrdinate { y: y_idx, x: x_idx });
 
                 if &nums_around.len() == &2 {
                     all_nums.push(nums_around[0] * nums_around[1]);
